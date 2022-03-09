@@ -5,5 +5,4 @@ squid_packages:
   - squid
 
 squid_config: /etc/squid/squid.conf
-squid_port: 3128
 squid_service: squid.service
