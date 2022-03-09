@@ -1,2 +1,46 @@
 ---
 # tasks file for ansible-role-squid/
+
+- name: "Include OS-specific variables"
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: "Gather the package facts"
+  ansible.builtin.package_facts:
+    manager: auto
+  when: ansible_facts.packages is not defined
+
+- name: "Install packages"
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ squid_packages }}"
+  when: item|string not in ansible_facts.packages
+
+- name: "Configure service configuration file"
+  ansible.builtin.lineinfile:
+    dest: "{{ squid_config }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    backup: yes
+  with_items:
+    - regexp: "^http_port"
+      line: "http_port {{ squid_port }}"
+    #- regexp: "^#LogFileMaxSize"
+    #  line: "LogFileMaxSize {{ freshclam_logmaxsize }}"
+    #- regexp: "^#LogTime"
+    #  line: "LogTime {{ freshclam_logtime }}"
+    #- regexp: "^#LogSyslog"
+    #  line: "LogSyslog {{ freshclam_syslog }}"
+    #- regexp: "^#LogFacility"
+    #  line: "LogFacility {{ freshclam_logfacility }}"
+    #- regexp: "^#LogRotate"
+    #  line: "LogRotate {{ freshclam_logrotate }}"
+    #- regexp: "^#Checks"
+    #  line: "Checks {{ freshclam_checks }}"
+
+- name: "Enable & start daemon service"
+  ansible.builtin.service:
+    name: "{{ squid_service }}"
+    enabled: yes
+    state: started
