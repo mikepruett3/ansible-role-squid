@@ -26,21 +26,11 @@
   with_items:
     - regexp: "^http_port"
       line: "http_port {{ squid_port }}"
-    #- regexp: "^#LogFileMaxSize"
-    #  line: "LogFileMaxSize {{ freshclam_logmaxsize }}"
-    #- regexp: "^#LogTime"
-    #  line: "LogTime {{ freshclam_logtime }}"
-    #- regexp: "^#LogSyslog"
-    #  line: "LogSyslog {{ freshclam_syslog }}"
-    #- regexp: "^#LogFacility"
-    #  line: "LogFacility {{ freshclam_logfacility }}"
-    #- regexp: "^#LogRotate"
-    #  line: "LogRotate {{ freshclam_logrotate }}"
-    #- regexp: "^#Checks"
-    #  line: "Checks {{ freshclam_checks }}"
+    - regexp: "^#http_access allow localnet"
+      line: "http_access allow localnet"
 
 - name: "Enable & start daemon service"
   ansible.builtin.service:
     name: "{{ squid_service }}"
     enabled: yes
-    state: started
+    state: restarted
